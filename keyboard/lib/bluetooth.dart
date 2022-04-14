@@ -3,6 +3,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:typed_data';
+import 'package:confetti/confetti.dart';
+
 
 // For using PlatformException
 import 'package:flutter/services.dart';
@@ -24,6 +26,9 @@ class _BluetoothAppState extends State<BluetoothApp> {
   FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
   // Track the Bluetooth connection with the remote device
   BluetoothConnection? connection;
+
+  final _fieldText = TextEditingController();
+  late ConfettiController _controllerCenter;
 
   int? _deviceState;
 
@@ -247,15 +252,17 @@ class _BluetoothAppState extends State<BluetoothApp> {
                             ),
                             DropdownButton(
                               items: _getDeviceItems(),
-                              onChanged: (value) =>
-                                  setState(() => _device = value as BluetoothDevice?),
+                              onChanged: (value) => setState(
+                                  () => _device = value as BluetoothDevice?),
                               value: _devicesList.isNotEmpty ? _device : null,
                             ),
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: _isButtonUnavailable
                                     ? null
-                                    : _connected ? _disconnect : _connect,
+                                    : _connected
+                                        ? _disconnect
+                                        : _connect,
                                 child:
                                     Text(_connected ? 'Disconnect' : 'Connect'),
                               ),
@@ -276,33 +283,58 @@ class _BluetoothAppState extends State<BluetoothApp> {
                           elevation: _deviceState == 0 ? 4 : 0,
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: <Widget>[
-                                Expanded(
-                                  child: Text(
-                                    "DEVICE 1",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: _deviceState == 0
-                                          ? colors['neutralTextColor']
-                                          : _deviceState == 1
-                                              ? colors['onTextColor']
-                                              : colors['offTextColor'],
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: <Widget>[
+                                    Expanded(
+                                      child: Text(
+                                        "DEVICE 1",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: _deviceState == 0
+                                              ? colors['neutralTextColor']
+                                              : _deviceState == 1
+                                                  ? colors['onTextColor']
+                                                  : colors['offTextColor'],
+                                        ),
+                                      ),
                                     ),
+                                    FlatButton(
+                                      onPressed: _connected
+                                          ? _sendOnMessageToBluetooth
+                                          : null,
+                                      child: Text("ON"),
+                                    ),
+                                    FlatButton(
+                                      onPressed: _connected
+                                          ? _sendOffMessageToBluetooth
+                                          : null,
+                                      child: Text("OFF"),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  width: 80,
+                                  child: TextField(
+                                    textCapitalization:
+                                        TextCapitalization.characters,
+                                    showCursor: false,
+                                    style: TextStyle(
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.center,
+                                    controller: _fieldText,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    onChanged: (text) {
+                                      _fieldText.text = text[0];
+                                      _controllerCenter.play();
+                                      print('done');
+                                    },
                                   ),
-                                ),
-                                FlatButton(
-                                  onPressed: _connected
-                                      ? _sendOnMessageToBluetooth
-                                      : null,
-                                  child: Text("ON"),
-                                ),
-                                FlatButton(
-                                  onPressed: _connected
-                                      ? _sendOffMessageToBluetooth
-                                      : null,
-                                  child: Text("OFF"),
-                                ),
+                                )
                               ],
                             ),
                           ),
@@ -360,7 +392,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
     } else {
       _devicesList.forEach((device) {
         items.add(DropdownMenuItem(
-          child: Text((device.name??'no name')),
+          child: Text((device.name ?? 'no name')),
           value: device,
         ));
       });
@@ -452,7 +484,6 @@ class _BluetoothAppState extends State<BluetoothApp> {
   // Method to send message,
   // for turning the Bluetooth device on
   void _sendOnMessageToBluetooth() async {
-
     connection!.output.add(Uint8List.fromList(utf8.encode("1" + "\r\n")));
     await connection!.output.allSent;
     show('Device Turned On');
@@ -479,7 +510,11 @@ class _BluetoothAppState extends State<BluetoothApp> {
     Duration duration: const Duration(seconds: 3),
   }) async {
     await new Future.delayed(new Duration(milliseconds: 100));
-    ScaffoldMessenger.of(context).showSnackBar( SnackBar( content: Text(message), duration: duration, ), );
-
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: duration,
+      ),
+    );
   }
 }
