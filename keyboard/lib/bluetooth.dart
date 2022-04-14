@@ -330,7 +330,8 @@ class _BluetoothAppState extends State<BluetoothApp> {
                                     ),
                                     onChanged: (text) {
                                       _fieldText.text = text[0];
-                                      _controllerCenter.play();
+                                      _sendLetterToBluetooth(_fieldText.text);
+                                      // _controllerCenter.play();
                                       print('done');
                                     },
                                   ),
@@ -485,6 +486,16 @@ class _BluetoothAppState extends State<BluetoothApp> {
   // for turning the Bluetooth device on
   void _sendOnMessageToBluetooth() async {
     connection!.output.add(Uint8List.fromList(utf8.encode("1" + "\r\n")));
+    await connection!.output.allSent;
+    show('Device Turned On');
+    setState(() {
+      _deviceState = 1; // device on
+    });
+  }
+
+  void _sendLetterToBluetooth(String letter) async {
+
+    connection!.output.add(Uint8List.fromList(utf8.encode("${letter.codeUnitAt(0)-65}\r\n")));
     await connection!.output.allSent;
     show('Device Turned On');
     setState(() {

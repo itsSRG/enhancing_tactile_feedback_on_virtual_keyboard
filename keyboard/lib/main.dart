@@ -4,6 +4,7 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'dart:typed_data';
 import 'dart:convert';
+import 'bluetooth.dart';
 
 
 
@@ -38,34 +39,34 @@ class _MyHomePageState extends State<MyHomePage> {
   late ConfettiController _controllerCenter;
   late BluetoothConnection connection;
 
-connect(String address) async {
-  try {
-    connection = await BluetoothConnection.toAddress(address);
-    print('Connected to the device');
+// connect(String address) async {
+//   try {
+//     connection = await BluetoothConnection.toAddress(address);
+//     print('Connected to the device');
 
-    connection.input!.listen((Uint8List data) {
-      //Data entry point
-      print(ascii.decode(data));
-    });
+//     connection.input!.listen((Uint8List data) {
+//       //Data entry point
+//       print(ascii.decode(data));
+//     });
 
-  } catch (exception) {
-    print('Cannot connect, exception occured');
-  }
-}
+//   } catch (exception) {
+//     print('Cannot connect, exception occured');
+//   }
+// }
   @override
 void initState(){
   _controllerCenter = ConfettiController(duration: const Duration(microseconds: 50));
   _controllerCenter.play();
-  printBluetooth();
+  // printBluetooth();
   super.initState();
 }
 
-void printBluetooth() async
-{
-  FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
-  print('Heloooooooooooooooooooooooooo');
-  print(await _bluetooth.getBondedDevices());
-}
+// void printBluetooth() async
+// {
+//   FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
+//   print('Heloooooooooooooooooooooooooo');
+//   print(await _bluetooth.getBondedDevices());
+// }
 
 @override
 void dispose() {
@@ -82,17 +83,17 @@ void dispose() {
       appBar: AppBar(
         title: Center(child: Image.asset('image/logo.png', height: 150, width: 100)),
         backgroundColor: Colors.white,
-      //   actions: [Padding(
-      // padding: EdgeInsets.only(right: 20.0),
-      // child: GestureDetector(
-      //   onTap: () {
-      //     Navigator.push(context, MaterialPageRoute(builder: (context) => BluetoothApp()));
-      //   },
-      //   child: Icon(
-      //     Icons.bluetooth,
-      //     color: Colors.black,
-      //     size: 26.0,
-      //   )))],
+        actions: [Padding(
+      padding: EdgeInsets.only(right: 20.0),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => BluetoothApp()));
+        },
+        child: Icon(
+          Icons.bluetooth,
+          color: Colors.black,
+          size: 26.0,
+        )))],
       ),
       body: Center(
         child: Column(
